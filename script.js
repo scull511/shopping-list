@@ -7,26 +7,28 @@ const formBtn = itemForm.querySelector('button');
 let isEditMode = false;
 
 function displayItems() {
+  // getting an array of items stored in localStorage...
   const itemsFromStorage = getItemsFromStorage();
+  // adding each item in the array to the DOM
   itemsFromStorage.forEach((item) => addItemToDOM(item));
 
-  checkUI();
+  checkUI(); // checks and resets
 }
 
 function addItemSubmit(e) {
-  e.preventDefault();
+  e.preventDefault(); // prevents the form being submitted
 
   const newItem = itemInput.value;
-  // validate input
+  // validate input, checking there is a value
   if (newItem === '') {
     alert('Please add an item');
     return;
   }
 
-  // check for edit mode
+  // check if edit mode is set to true
   if (isEditMode) {
     const itemToEdit = itemList.querySelector('.edit-mode');
-    // not actually editing, instead removing old, them adding new
+    // not actually editing, instead removing old item and adding new
     removeItemFromStorage(itemToEdit.textContent);
     itemToEdit.classList.remove('edit-mode');
     itemToEdit.remove();
@@ -44,13 +46,14 @@ function addItemSubmit(e) {
   // add item to local storage
   addItemToStorage(newItem);
 
-  checkUI();
+  checkUI(); // checks and resets
 
   itemInput.value = '';
 }
 
 function addItemToDOM(item) {
-  // Create list item
+  // for each item in the array in localStorage...
+  // a list item is created and added to the DOM
   const li = document.createElement('li');
   const text = document.createTextNode(item);
   li.appendChild(text);
@@ -62,6 +65,7 @@ function addItemToDOM(item) {
   itemList.appendChild(li);
 }
 
+// functions to create buttons...
 function createButton(classes) {
   const button = document.createElement('button');
   button.className = classes;
@@ -69,7 +73,7 @@ function createButton(classes) {
   button.appendChild(icon);
   return button;
 }
-
+// ...and the icons within the buttons
 function createIcon(classes) {
   const icon = document.createElement('i');
   icon.className = classes;
@@ -99,10 +103,14 @@ function getItemsFromStorage() {
   return itemsFromStorage;
 }
 
+// this function is called when the item list is clicked - using event delegation, the function either calls another function to remove an item, or to edit an item
 function onClickItem(e) {
+  // if the delete icon (an i element) is clicked...
+  // the parent of the i element is the button element, the button has the class of 'remove-item'
   if (e.target.parentElement.classList.contains('remove-item')) {
     removeItem(e.target.parentElement.parentElement);
   } else {
+    // clicking anything in the list item that is not the i element, calls the function to edit an item
     setItemToEdit(e.target);
   }
 }
@@ -119,18 +127,22 @@ function checkForDuplicates(item) {
   return itemsFromStorage.includes(item);
 }
 
+// edit function - sets edit mode to true, changes some button styling and text, then edits the text of the item
 function setItemToEdit(item) {
   isEditMode = true;
   itemList
     .querySelectorAll('li')
+    // remove edit-mode class for all other items
     .forEach((i) => i.classList.remove('edit-mode'));
+  // but add edit-mode class to selected item
   item.classList.add('edit-mode');
   formBtn.innerHTML = '<i class="fa-solid fa-pen"></i>  Update Item';
   formBtn.style.backgroundColor = '#228B22';
+  // update the text
   itemInput.value = item.textContent;
 }
 
-// When clicking on the x icon ...
+// when clicking on the x icon ...
 function removeItem(item) {
   if (confirm('Are you sure?')) {
     // remove item from DOM
@@ -139,7 +151,7 @@ function removeItem(item) {
     // remove item from storage
     removeItemFromStorage(item.textContent);
 
-    checkUI();
+    checkUI(); // checks and resets
   }
 }
 
@@ -162,7 +174,7 @@ function clearItems() {
   // clear() would remove ALL localStorage
   localStorage.removeItem('items');
 
-  checkUI();
+  checkUI(); // checks and resets
 }
 
 function filterItems(e) {
@@ -181,9 +193,13 @@ function filterItems(e) {
   });
 }
 
+// a series of checks and resets to perform after certain events
 function checkUI() {
+  // clear the input box of the previous input
   itemInput.value = '';
+  // check how many items there are and edit the UI based on that
   const items = itemList.querySelectorAll('li');
+  // if there are no items, you don't need the clear button or filter
   if (items.length === 0) {
     clearBtn.style.display = 'none';
     itemFilter.style.display = 'none';
